@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloudinary Media Lab – SOA Seminar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9EEF3; --surface:#FFFFFF; --ink:#0F2A43; --muted:#5B7083; --line:#CFD9E3;
+  --accent:#1F5EFF; --accent-ink:#FFFFFF; --heavy:#E8590C; --light:#0B8F5A; --danger:#C62828;
+  --head:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"Figtree","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:16px}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body)}
+h1,h2,h3{font-family:var(--head);margin:0;line-height:1.15}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 20px 60px}
+header{display:flex;flex-wrap:wrap;gap:12px 32px;align-items:end;justify-content:space-between;margin-bottom:26px}
+header h1{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.02em}
+header p{margin:6px 0 0;color:var(--muted);max-width:56ch}
+header a{color:var(--accent);font-weight:600}
+.layout{display:grid;grid-template-columns:340px 1fr;gap:22px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
+.panel h2{font-size:20px;margin-bottom:12px}
+.stack{display:grid;gap:14px}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg label{padding:9px 10px;text-align:center;cursor:pointer;font-weight:600;font-size:14px;background:#F6F8FB}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg input:checked+span{background:var(--ink);color:#fff}
+.seg span{display:block;padding:9px 10px;margin:-9px -10px}
+.seg input:focus-visible+span{outline:3px solid var(--accent);outline-offset:-3px}
+.hint{font-size:13.5px;color:var(--muted);margin:0}
+.field{display:grid;gap:5px;font-size:14px;font-weight:600}
+.field input[type=text],.field select,.field input[type=file]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;font-weight:400}
+.btn{border:0;border-radius:8px;padding:11px 16px;font-weight:600;cursor:pointer;background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--danger);border:1px solid var(--danger)}
+.btn:disabled{opacity:.55;cursor:wait}
+.msg{font-size:14px;min-height:20px;margin:0}
+.msg.err{color:var(--danger)} .msg.ok{color:var(--light)}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-top:4px}
+.gallery button{padding:0;border:2px solid transparent;border-radius:8px;overflow:hidden;background:#dfe6ee;cursor:pointer;aspect-ratio:1}
+.gallery button[aria-pressed=true]{border-color:var(--accent)}
+.gallery img{width:100%;height:100%;object-fit:cover;display:block}
+.empty{padding:50px 24px;text-align:center;color:var(--muted)}
+.empty h2{color:var(--ink);margin-bottom:8px}
+.stage-head{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:12px}
+.stage-head h2{margin:0;word-break:break-all;font-size:18px}
+.preview{display:block;max-width:100%;max-height:420px;margin:0 auto;border-radius:8px;background:#dfe6ee}
+.compare{display:grid;gap:12px;margin-top:6px}
+.bar-row{display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:center}
+.bar-row .track{background:#EEF2F6;border-radius:6px;height:34px;position:relative;overflow:hidden}
+.bar{height:100%;display:flex;align-items:center;padding:0 10px;color:#fff;font-weight:600;font-size:14px;white-space:nowrap;min-width:fit-content;transition:width .5s ease}
+.bar.heavy{background:var(--heavy)} .bar.light{background:var(--light)}
+.saving{font-family:var(--head);font-weight:800;font-size:clamp(34px,6vw,60px);letter-spacing:-.03em;color:var(--light);line-height:1}
+.saving small{display:block;font:500 14px var(--body);color:var(--muted);letter-spacing:0;margin-top:6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.two{grid-template-columns:1fr}.bar-row{grid-template-columns:1fr}}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.checks label{display:flex;gap:6px;align-items:center;font-weight:500;font-size:14px}
+code.url{display:block;padding:10px;background:#0F2A43;color:#DCE8F5;border-radius:8px;font:13px/1.45 ui-monospace,Consolas,monospace;overflow-wrap:anywhere}
+.variants{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.variant{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+.variant .img{background:#dfe6ee;height:150px;display:grid;place-items:center}
+.variant img{max-width:100%;max-height:150px;display:block}
+.variant div.meta{padding:9px 10px;font-size:13.5px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.variant b{font-family:var(--head);font-size:15px}
+.variant button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:12.5px}
+.sections{display:grid;gap:22px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Cloudinary Media Lab</h1>
+      <p>Tải một ảnh lên, rồi xem Cloudinary biến nó thành nhiều phiên bản nhẹ hơn chỉ bằng cách đổi URL.</p>
+    </div>
+    <a href="/swagger-ui.html" target="_blank" rel="noopener">Mở Swagger UI</a>
+  </header>
+
+  <div class="layout">
+    <aside class="stack">
+      <section class="panel stack" aria-labelledby="up-h">
+        <h2 id="up-h">Tải ảnh lên</h2>
+        <fieldset class="seg" style="padding:0;margin:0" aria-label="Cách upload">
+          <label><input type="radio" name="mode" value="A" checked><span>A · Qua backend</span></label>
+          <label><input type="radio" name="mode" value="B"><span>B · Trực tiếp</span></label>
+        </fieldset>
+        <p class="hint" id="mode-hint"></p>
+        <label class="field">Ảnh (JPEG, PNG, WEBP, GIF – tối đa 5MB)
+          <input type="file" id="file" accept="image/jpeg,image/png,image/webp,image/gif">
+        </label>
+        <label class="field">Thư mục trên Cloudinary
+          <input type="text" id="folder" placeholder="soa/demo" autocomplete="off">
+        </label>
+        <button class="btn" id="btn-upload">Tải lên</button>
+        <p class="msg" id="up-msg" role="status"></p>
+      </section>
+
+      <section class="panel" aria-labelledby="g-h">
+        <h2 id="g-h">Ảnh đã lưu</h2>
+        <div class="gallery" id="gallery"></div>
+        <p class="hint" id="g-empty">Chưa có ảnh nào.</p>
+      </section>
+    </aside>
+
+    <main id="stage" class="sections" aria-live="polite">
+      <section class="panel empty">
+        <h2>Bắt đầu bằng một bức ảnh nặng</h2>
+        <p>Chọn ảnh vài MB ở bên trái và bấm “Tải lên”. Bảng so sánh dung lượng sẽ hiện ở đây.</p>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = b => b >= 1048576 ? (b/1048576).toFixed(2) + ' MB' : (b/1024).toFixed(1) + ' KB';
+const tr = (url, t) => url.replace('/upload/', '/upload/' + t + '/');   // chèn transformation vào URL
+let images = [], selected = null;
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  if (!r.ok) {
+    let m = r.statusText;
+    try { m = (await r.json()).detail || m; } catch (_) {}
+    throw new Error(m);
+  }
+  return r.status === 204 ? null : r.json();
+}
+
+/* ---------- Upload ---------- */
+const HINTS = {
+  A: 'Trình duyệt gửi file cho backend, backend gửi lên Cloudinary. Dễ kiểm soát, nhưng file đi qua server của bạn.',
+  B: 'Backend chỉ ký chữ ký. Trình duyệt gửi file thẳng lên Cloudinary rồi báo lại backend. Nhẹ cho server.'
+};
+const mode = () => document.querySelector('input[name=mode]:checked').value;
+const setHint = () => $('#mode-hint').textContent = HINTS[mode()];
+document.querySelectorAll('input[name=mode]').forEach(r => r.addEventListener('change', setHint));
+setHint();
+
+async function uploadA(file, folder) {
+  const fd = new FormData();
+  fd.append('file', file);
+  if (folder) fd.append('folder', folder);
+  return api('/api/images', { method: 'POST', body: fd });
+}
+async function uploadB(file, folder) {
+  const sig = await api('/api/images/signature' + (folder ? '?folder=' + encodeURIComponent(folder) : ''));
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('api_key', sig.apiKey);
+  Object.entries(sig.params).forEach(([k, v]) => fd.append(k, v));
+  const r = await fetch(sig.uploadUrl, { method: 'POST', body: fd });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error?.message || 'Cloudinary từ chối upload');
+  return api('/api/images/register', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ publicId: j.public_id })
+  });
+}
+
+$('#btn-upload').addEventListener('click', async () => {
+  const file = $('#file').files[0], msg = $('#up-msg'), btn = $('#btn-upload');
+  msg.className = 'msg';
+  if (!file) { msg.textContent = 'Hãy chọn một ảnh trước.'; msg.classList.add('err'); return; }
+  btn.disabled = true; msg.textContent = 'Đang tải lên…';
+  try {
+    const t0 = performance.now();
+    const img = await (mode() === 'A' ? uploadA : uploadB)(file, $('#folder').value.trim());
+    msg.textContent = `Đã tải lên sau ${Math.round(performance.now() - t0)} ms.`;
+    msg.classList.add('ok');
+    await loadList(img.id);
+  } catch (e) { msg.textContent = e.message; msg.classList.add('err'); }
+  finally { btn.disabled = false; }
+});
+
+/* ---------- Gallery ---------- */
+async function loadList(selectId) {
+  images = await api('/api/images');
+  const g = $('#gallery'); g.innerHTML = '';
+  $('#g-empty').hidden = images.length > 0;
+  images.forEach(im => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-pressed', String(im.id === selectId));
+    b.setAttribute('aria-label', 'Xem ảnh ' + (im.originalFilename || im.publicId));
+    b.innerHTML = `<img alt="" loading="lazy" src="${esc(tr(im.url, 'c_fill,g_auto,w_160,h_160,f_auto,q_auto'))}">`;
+    b.addEventListener('click', () => select(im.id));
+    g.appendChild(b);
+  });
+  if (selectId) select(selectId);
+  else if (!images.length) renderEmpty();
+}
+function renderEmpty() {
+  $('#stage').innerHTML = `<section class="panel empty"><h2>Bắt đầu bằng một bức ảnh nặng</h2>
+  <p>Chọn ảnh vài MB ở bên trái và bấm “Tải lên”. Bảng so sánh dung lượng sẽ hiện ở đây.</p></section>`;
+}
+
+/* ---------- Stage ---------- */
+async function measure(url) {
+  const t = performance.now();
+  const r = await fetch(url, { cache: 'no-store' });
+  const blob = await r.blob();
+  return { bytes: blob.size, ms: Math.round(performance.now() - t), type: blob.type };
+}
+
+async function select(id) {
+  selected = images.find(i => i.id === id);
+  if (!selected) return;
+  document.querySelectorAll('#gallery button').forEach((b, i) => b.setAttribute('aria-pressed', String(images[i].id === id)));
+  const im = selected;
+  const optimized = tr(im.url, 'c_limit,w_1200,f_auto,q_auto');
+  $('#stage').innerHTML = `
+  <section class="panel">
+    <div class="stage-head">
+      <h2>${esc(im.publicId)}</h2>
+      <button class="btn danger" id="btn-del">Xóa ảnh</button>
+    </div>
+    <img class="preview" alt="Ảnh đã tối ưu" src="${esc(optimized)}">
+    <p class="hint" style="text-align:center;margin-top:8px">Gốc: ${im.width}×${im.height}px · ${esc(im.format)} · ${fmt(im.bytes || 0)}</p>
+  </section>
+
+  <section class="panel">
+    <h2>So sánh dung lượng tải về</h2>
+    <p class="hint">Cùng một ảnh: bản gốc và bản <code>c_limit,w_1200,f_auto,q_auto</code> qua CDN.</p>
+    <div class="two" style="margin-top:14px;align-items:center">
+      <div class="saving" id="saving">—<small>Bấm “Đo” để so sánh</small></div>
+      <div class="compare" id="compare"></div>
+    </div>
+    <p style="margin:14px 0 0"><button class="btn ghost" id="btn-measure">Đo dung lượng và thời gian</button></p>
+  </section>
+
+  <section class="panel">
+    <h2>Sân chơi transformation</h2>
+    <p class="hint">Mọi thay đổi chỉ là đổi chữ trong URL, ảnh gốc vẫn được giữ nguyên.</p>
+    <div class="two" style="margin-top:14px">
+      <div class="stack">
+        <label class="field">Rộng: <output id="o-w">400</output>px<input type="range" id="p-w" min="50" max="1200" value="400"></label>
+        <label class="field">Cao: <output id="o-h">300</output>px<input type="range" id="p-h" min="50" max="1200" value="300"></label>
+        <label class="field">Kiểu cắt
+          <select id="p-c"><option>fill</option><option>fit</option><option>scale</option><option>thumb</option><option>limit</option><option>pad</option></select></label>
+        <label class="field">Điểm lấy nét
+          <select id="p-g"><option>auto</option><option>face</option><option>center</option></select></label>
+        <div class="checks">
+          <label><input type="checkbox" id="p-gray"> Đen trắng</label>
+          <label><input type="checkbox" id="p-round"> Bo tròn</label>
+          <label><input type="checkbox" id="p-blur"> Làm mờ</label>
+          <label><input type="checkbox" id="p-fa" checked> f_auto</label>
+          <label><input type="checkbox" id="p-qa" checked> q_auto</label>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="preview" style="min-height:160px;display:grid;place-items:center"><img id="p-img" alt="Kết quả transformation" style="max-width:100%"></div>
+        <p class="hint" id="p-info"></p>
+      </div>
+    </div>
+    <code class="url" id="p-url" style="margin-top:14px"></code>
+    <p style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn ghost" id="p-copy">Sao chép URL</button>
+      <button class="btn ghost" id="p-size">Đo ảnh này</button>
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Biến thể có sẵn từ backend</h2>
+    <p class="hint">Endpoint <code>GET /api/images/${im.id}/variants</code> trả về các URL này.</p>
+    <div class="variants" id="variants" style="margin-top:14px"></div>
+  </section>`;
+
+  $('#btn-del').addEventListener('click', async () => {
+    if (!confirm('Xóa ảnh này khỏi Cloudinary và database?')) return;
+    try { await api('/api/images/' + im.id, { method: 'DELETE' }); selected = null; await loadList(); }
+    catch (e) { alert(e.message); }
+  });
+  $('#btn-measure').addEventListener('click', () => runCompare(im, optimized));
+  initPlayground(im);
+  loadVariants(im);
+}
+
+async function runCompare(im, optimized) {
+  const btn = $('#btn-measure'); btn.disabled = true; btn.textContent = 'Đang đo…';
+  try {
+    const [o, p] = await Promise.all([measure(im.url), measure(optimized)]);
+    const max = Math.max(o.bytes, p.bytes);
+    const w = v => Math.max(18, Math.round(v / max * 100));
+    $('#compare').innerHTML = `
+      <div class="bar-row"><span>Gốc</span><div class="track"><div class="bar heavy" style="width:${w(o.bytes)}%">${fmt(o.bytes)} · ${o.ms} ms</div></div></div>
+      <div class="bar-row"><span>Tối ưu (${esc(p.type.replace('image/', ''))})</span><div class="track"><div class="bar light" style="width:${w(p.bytes)}%">${fmt(p.bytes)} · ${p.ms} ms</div></div></div>`;
+    const pct = Math.max(0, Math.round((1 - p.bytes / o.bytes) * 100));
+    $('#saving').innerHTML = `−${pct}%<small>dung lượng tải về</small>`;
+  } catch (e) {
+    $('#compare').innerHTML = '<p class="hint">Trình duyệt chặn đo trực tiếp. Hãy mở DevTools → Network để xem kích thước.</p>';
+  } finally { btn.disabled = false; btn.textContent = 'Đo lại'; }
+}
+
+function initPlayground(im) {
+  const ids = ['p-w','p-h','p-c','p-g','p-gray','p-round','p-blur','p-fa','p-qa'];
+  const build = () => {
+    const parts = ['c_' + $('#p-c').value, 'w_' + $('#p-w').value, 'h_' + $('#p-h').value];
+    if ($('#p-c').value !== 'scale' && $('#p-c').value !== 'fit') parts.push('g_' + $('#p-g').value);
+    if ($('#p-gray').checked) parts.push('e_grayscale');
+    if ($('#p-blur').checked) parts.push('e_blur:300');
+    if ($('#p-round').checked) parts.push('r_max');
+    if ($('#p-fa').checked) parts.push('f_auto');
+    if ($('#p-qa').checked) parts.push('q_auto');
+    return parts.join(',');
+  };
+  const update = () => {
+    $('#o-w').textContent = $('#p-w').value; $('#o-h').textContent = $('#p-h').value;
+    const t = build(), url = tr(im.url, t);
+    $('#p-img').src = url; $('#p-url').textContent = url; $('#p-info').textContent = 'Transformation: ' + t;
+    return url;
+  };
+  ids.forEach(i => $('#' + i).addEventListener('input', update));
+  update();
+  $('#p-copy').addEventListener('click', async () => {
+    await navigator.clipboard.writeText($('#p-url').textContent);
+    $('#p-copy').textContent = 'Đã sao chép';
+    setTimeout(() => $('#p-copy').textContent = 'Sao chép URL', 1500);
+  });
+  $('#p-size').addEventListener('click', async () => {
+    $('#p-info').textContent = 'Đang đo…';
+    try {
+      const m = await measure($('#p-url').textContent);
+      $('#p-info').textContent = `${fmt(m.bytes)} · ${m.type.replace('image/', '')} · ${m.ms} ms`;
+    } catch (_) { $('#p-info').textContent = 'Không đo được. Xem tab Network trong DevTools.'; }
+  });
+}
+
+async function loadVariants(im) {
+  const box = $('#variants');
+  try {
+    const v = await api(`/api/images/${im.id}/variants`);
+    box.innerHTML = Object.entries(v).map(([name, url]) => `
+      <figure class="variant" style="margin:0">
+        <div class="img"><img loading="lazy" alt="Biến thể ${esc(name)}" src="${esc(url)}"></div>
+        <div class="meta"><b>${esc(name)}</b><button data-url="${esc(url)}">Sao chép URL</button></div>
+      </figure>`).join('');
+    box.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(b.dataset.url); b.textContent = 'Đã sao chép';
+      setTimeout(() => b.textContent = 'Sao chép URL', 1500);
+    }));
+  } catch (e) { box.innerHTML = `<p class="msg err">${esc(e.message)}</p>`; }
+}
+
+loadList().catch(e => { $('#up-msg').textContent = 'Không gọi được backend: ' + e.message; $('#up-msg').classList.add('err'); });
+</script>
+</body>
+</html>

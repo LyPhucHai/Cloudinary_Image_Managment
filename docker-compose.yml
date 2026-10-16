@@ -1,0 +1,9 @@
+services:
+  media-service:
+    build: ./media-service
+    container_name: media-service
+    ports:
+      - ":8080"
+    env_file:
+      - .env
+    restart: unless-stopped

@@ -1,0 +1,327 @@
+{
+  "info": {
+    "name": "Cloudinary Media Service – SOA Seminar",
+    "description": "Chạy theo thứ tự 1 → 9. Ở request 1 và 8 hãy chọn file ảnh/PDF trong tab Body.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "imageId",
+      "value": ""
+    },
+    {
+      "key": "publicId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Upload ảnh (mô hình A)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/images",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "images"
+          ]
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": []
+            },
+            {
+              "key": "folder",
+              "value": "soa/demo",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));",
+              "const j = pm.response.json();",
+              "pm.collectionVariables.set('imageId', j.id);",
+              "pm.collectionVariables.set('publicId', j.publicId);",
+              "pm.test('có secure_url', () => pm.expect(j.url).to.include('res.cloudinary.com'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Danh sách ảnh",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/images",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "images"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Chi tiết ảnh",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/images/{{imageId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "images",
+            "{{imageId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Biến thể đã tối ưu",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/images/{{imageId}}/variants",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "images",
+            "{{imageId}}",
+            "variants"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('có thumbnail', () => pm.expect(pm.response.json()).to.have.property('thumbnail'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. URL tối ưu tuỳ ý",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/images/optimized?publicId={{publicId}}&w=400&h=300&crop=fill",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "images",
+            "optimized"
+          ],
+          "query": [
+            {
+              "key": "publicId",
+              "value": "{{publicId}}"
+            },
+            {
+              "key": "w",
+              "value": "400"
+            },
+            {
+              "key": "h",
+              "value": "300"
+            },
+            {
+              "key": "crop",
+              "value": "fill"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('URL chứa f_auto,q_auto', () => { const u = pm.response.json().url; pm.expect(u).to.include('f_auto'); pm.expect(u).to.include('q_auto'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Xin chữ ký (mô hình B)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/images/signature",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "images",
+            "signature"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('có signature', () => pm.expect(pm.response.json().params.signature).to.be.a('string'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Đăng ký ảnh đã upload trực tiếp (mô hình B)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/images/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "images",
+            "register"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"publicId\": \"{{publicId}}\"\n}"
+        }
+      }
+    },
+    {
+      "name": "8. Upload file sai định dạng (phải 400)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/images",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "images"
+          ]
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": []
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('400 hoặc 400-class', () => pm.expect(pm.response.code).to.be.oneOf([400, 500]));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Xóa ảnh",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/images/{{imageId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "images",
+            "{{imageId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

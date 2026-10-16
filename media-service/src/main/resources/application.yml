@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: media-service
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+  datasource:
+    # Demo dùng H2 in-memory (mất dữ liệu khi restart). Dự án thật: đổi sang MySQL/PostgreSQL.
+    url: jdbc:h2:mem:mediadb;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
+
+app:
+  media:
+    default-folder: soa/demo
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
