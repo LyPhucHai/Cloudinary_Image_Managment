@@ -241,7 +241,7 @@ async function select(id) {
   </section>
 
   <section class="panel">
-    <h2>Sân chơi transformation</h2>
+    <h2>Transformation</h2>
     <p class="hint">Mọi thay đổi chỉ là đổi chữ trong URL, ảnh gốc vẫn được giữ nguyên.</p>
     <div class="two" style="margin-top:14px">
       <div class="stack">
@@ -272,6 +272,23 @@ async function select(id) {
   </section>
 
   <section class="panel">
+    <h2>CDN delivery</h2>
+    <p class="hint">CDN là mạng máy chủ đặt khắp thế giới. Ảnh được giữ sẵn ở máy chủ gần người xem nên tải nhanh hơn.</p>
+
+    <h3 style="font-size:16px;margin:16px 0 6px">1. Cấu trúc URL của ảnh trên CDN</h3>
+    <div id="cdn-anatomy"></div>
+
+    <h3 style="font-size:16px;margin:18px 0 6px">2. Thử cache: lần 1 và lần 2</h3>
+    <p class="hint">Nút bên dưới tạo một URL biến đổi chưa từng có (kích thước ngẫu nhiên) rồi tải 2 lần liên tiếp. Lần 1 Cloudinary phải tạo ảnh. Lần 2 lấy từ cache CDN nên thường nhanh hơn.</p>
+    <p style="margin:12px 0"><button class="btn ghost" id="btn-cdn">Chạy thử CDN</button></p>
+    <div id="cdn-result" class="compare"></div>
+
+    <h3 style="font-size:16px;margin:18px 0 6px">3. Responsive: mỗi màn hình tải đúng cỡ ảnh</h3>
+    <p class="hint">Mã HTML này để trình duyệt tự chọn kích thước phù hợp, điện thoại không phải tải ảnh to.</p>
+    <code class="url" id="cdn-srcset" style="margin-top:8px;white-space:pre-wrap"></code>
+  </section>
+
+  <section class="panel">
     <h2>Biến thể có sẵn từ backend</h2>
     <p class="hint">Endpoint <code>GET /api/images/${im.id}/variants</code> trả về các URL này.</p>
     <div class="variants" id="variants" style="margin-top:14px"></div>
@@ -283,6 +300,9 @@ async function select(id) {
     catch (e) { alert(e.message); }
   });
   $('#btn-measure').addEventListener('click', () => runCompare(im, optimized));
+  $('#btn-cdn').addEventListener('click', () => runCdn(im));
+  renderAnatomy(im);
+  renderSrcset(im);
   initPlayground(im);
   loadVariants(im);
 }
@@ -301,6 +321,65 @@ async function runCompare(im, optimized) {
   } catch (e) {
     $('#compare').innerHTML = '<p class="hint">Trình duyệt chặn đo trực tiếp. Hãy mở DevTools → Network để xem kích thước.</p>';
   } finally { btn.disabled = false; btn.textContent = 'Đo lại'; }
+}
+
+/* ---------- CDN delivery ---------- */
+function renderAnatomy(im) {
+  const m = im.url.match(/^https:\/\/([^/]+)\/([^/]+)\/(image)\/(upload)\/(?:(v\d+)\/)?(.+)$/);
+  const box = $('#cdn-anatomy');
+  if (!m) { box.innerHTML = '<p class="hint">Không phân tích được URL: ' + esc(im.url) + '</p>'; return; }
+  const rows = [
+    [m[1] + '/' + m[2], 'Domain CDN và tên tài khoản (cloud name). Người xem tải ảnh từ đây, không phải từ server của bạn.'],
+    [m[3], 'Loại tài nguyên: ảnh.'],
+    [m[4], 'Kiểu phân phối: upload là công khai. Còn private/authenticated cho ảnh cần bảo mật.'],
+    ['(transformation)', 'Chỗ chèn f_auto, q_auto, w_400... Mỗi chuỗi khác nhau là một biến thể và được cache riêng.'],
+    [m[5] || '(không có)', 'Version. Khi ghi đè ảnh, version đổi nên URL mới, người xem không bị dính cache cũ.'],
+    [m[6], 'public_id: định danh ảnh. Đây là thứ nên lưu trong database.']
+  ];
+  box.innerHTML = '<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:14px">' +
+    rows.map(r => `<tr><td style="padding:7px 10px;border-top:1px solid var(--line);font-family:ui-monospace,Consolas,monospace;white-space:nowrap;vertical-align:top">${esc(r[0])}</td><td style="padding:7px 10px;border-top:1px solid var(--line)">${esc(r[1])}</td></tr>`).join('') +
+    '</table></div>';
+}
+
+function renderSrcset(im) {
+  const u = w => tr(im.url, 'c_limit,w_' + w + ',f_auto,q_auto');
+  $('#cdn-srcset').textContent =
+`<img src="${u(800)}"
+     srcset="${u(400)} 400w,
+             ${u(800)} 800w,
+             ${u(1600)} 1600w"
+     sizes="(max-width: 600px) 100vw, 800px"
+     loading="lazy" alt="...">`;
+}
+
+async function runCdn(im) {
+  const btn = $('#btn-cdn'); btn.disabled = true; btn.textContent = 'Đang đo…';
+  const w = 300 + Math.floor(Math.random() * 700);
+  const url = tr(im.url, `c_limit,w_${w},f_auto,q_auto`);
+  const hdr = r => ['cache-control', 'server-timing', 'x-cache', 'age']
+    .filter(k => r.headers.get(k)).map(k => k + ': ' + r.headers.get(k)).join(' | ')
+    || '(trình duyệt không cho đọc header, hãy xem DevTools → Network)';
+  const hit = async () => {
+    const t = performance.now();
+    const r = await fetch(url, { cache: 'no-store' });
+    const b = await r.blob();
+    return { ms: Math.round(performance.now() - t), bytes: b.size, h: hdr(r) };
+  };
+  try {
+    const a = await hit(), b = await hit();
+    const pct = Math.min(100, Math.max(18, Math.round(b.ms / Math.max(a.ms, 1) * 100)));
+    const note = b.ms < a.ms
+      ? `Lần 2 nhanh hơn ${a.ms - b.ms} ms nhờ cache CDN.`
+      : 'Lần này lần 2 không nhanh hơn (mạng dao động). Hãy bấm chạy lại vài lần.';
+    $('#cdn-result').innerHTML = `
+      <p class="hint">URL thử: <code>${esc(url)}</code></p>
+      <div class="bar-row"><span>Lần 1</span><div class="track"><div class="bar heavy" style="width:100%">${a.ms} ms · ${fmt(a.bytes)}</div></div></div>
+      <div class="bar-row"><span>Lần 2</span><div class="track"><div class="bar light" style="width:${pct}%">${b.ms} ms</div></div></div>
+      <p class="hint"><b>${esc(note)}</b></p>
+      <p class="hint">Header lần 2: ${esc(b.h)}</p>`;
+  } catch (e) {
+    $('#cdn-result').innerHTML = '<p class="hint">Không đo được. Hãy xem DevTools → Network.</p>';
+  } finally { btn.disabled = false; btn.textContent = 'Chạy lại'; }
 }
 
 function initPlayground(im) {
