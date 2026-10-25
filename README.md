@@ -25,12 +25,6 @@ Dù cách nào, bạn vẫn cần **khóa Cloudinary của chính bạn** (xem B
 bash start.sh
 ```
 
-**Cách 3: Không cài gì, chạy trên web bằng GitHub Codespaces.**
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/LyPhucHai/Cloudinary_Image_Managment)
-
-Khi tạo Codespace, GitHub hỏi 3 giá trị Cloudinary. Chờ vài phút để ứng dụng khởi động, rồi mở tab **Ports** và bấm vào cổng **8080** (xem log bằng `tail -f /tmp/media-service.log`).
-
 Hoặc làm thủ công từng bước như bên dưới.
 
 ## Cài đặt và chạy
