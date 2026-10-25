@@ -34,6 +34,7 @@ Hoặc làm thủ công từng bước như bên dưới.
 ```bash
 git clone https://github.com/LyPhucHai/Cloudinary_Image_Managment.git
 cd Cloudinary_Image_Managment
+.\start.bat
 ```
 
 Hoặc trên GitHub bấm **Code → Download ZIP**, rồi giải nén.
