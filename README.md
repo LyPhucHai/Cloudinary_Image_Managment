@@ -13,28 +13,21 @@ Project có trang web demo, Swagger UI, Postman collection và unit test.
 - **Docker Desktop** (cách chạy đơn giản nhất, không cần cài Java hay Maven).
 - Tài khoản **Cloudinary** miễn phí tại https://cloudinary.com.
 
-## Chạy nhanh (ít thao tác nhất)
-
-Dù cách nào, bạn vẫn cần **khóa Cloudinary của chính bạn** (xem Bước 2 bên dưới), vì đó là thông tin riêng của mỗi tài khoản.
-
-**Cách 1: Windows, bấm đúp.** Cài và mở Docker Desktop, tải project, bấm đúp file **`start.bat`**. Lần đầu script hỏi 3 giá trị Cloudinary, tự tạo `.env`, build, chạy và mở trình duyệt.
-
-**Cách 2: Linux / macOS / Git Bash.**
-
-```bash
-bash start.sh
-```
-
-Hoặc làm thủ công từng bước như bên dưới.
-
 ## Cài đặt và chạy
 
 ### 1. Tải project
 
+Window
 ```bash
 git clone https://github.com/LyPhucHai/Cloudinary_Image_Managment.git
 cd Cloudinary_Image_Managment
 .\start.bat
+```
+MacOS/Linux
+```bash
+git clone https://github.com/LyPhucHai/Cloudinary_Image_Managment.git
+cd Cloudinary_Image_Managment
+bash start.sh
 ```
 
 Hoặc trên GitHub bấm **Code → Download ZIP**, rồi giải nén.
