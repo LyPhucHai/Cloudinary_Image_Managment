@@ -20,12 +20,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
-/**
- * Toàn bộ logic làm việc với Cloudinary:
- *  - upload qua backend (mô hình A)
- *  - ký chữ ký cho upload trực tiếp từ client (mô hình B) + đăng ký ảnh sau khi upload
- *  - sinh URL tối ưu (transformation) và xóa ảnh
- */
 @Service
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ImageService {
@@ -51,9 +45,6 @@ public class ImageService {
         this.defaultFolder = defaultFolder;
     }
 
-    // ------------------------------------------------------------------
-    // Mô hình A: upload qua backend
-    // ------------------------------------------------------------------
     public ImageResponse upload(MultipartFile file, String folder) {
         validate(file);
         String targetFolder = resolveFolder(folder);
@@ -74,9 +65,6 @@ public class ImageService {
         return ImageResponse.from(saved);
     }
 
-    // ------------------------------------------------------------------
-    // Mô hình B: signed upload trực tiếp từ client
-    // ------------------------------------------------------------------
     public SignatureResponse createUploadSignature(String folder) {
         String targetFolder = resolveFolder(folder);
         String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
@@ -119,9 +107,7 @@ public class ImageService {
         return ImageResponse.from(repository.save(toEntity(resource, null)));
     }
 
-    // ------------------------------------------------------------------
-    // Truy vấn / xóa
-    // ------------------------------------------------------------------
+
     public List<ImageResponse> list() {
         return repository.findAllByOrderByCreatedAtDesc().stream().map(ImageResponse::from).toList();
     }
@@ -141,9 +127,6 @@ public class ImageService {
         repository.delete(asset);
     }
 
-    // ------------------------------------------------------------------
-    // Image optimization: sinh URL biến đổi (không tốn băng thông backend)
-    // ------------------------------------------------------------------
     public String optimizedUrl(String publicId, int width, int height, String crop) {
         if (!SAFE_PATH.matcher(publicId).matches()) {
             throw new IllegalArgumentException("publicId không hợp lệ");
@@ -179,9 +162,7 @@ public class ImageService {
         return v;
     }
 
-    // ------------------------------------------------------------------
-    // Helpers
-    // ------------------------------------------------------------------
+ 
     private String url(String publicId, Transformation transformation) {
         return cloudinary.url().transformation(transformation).secure(true).generate(publicId);
     }
